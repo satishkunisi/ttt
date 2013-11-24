@@ -1,6 +1,6 @@
 class Board
   attr_reader :rows
-  
+
   #Creates blank board as a 3 X 3 array
   def self.blank_grid
     (0...3).map { [nil] * 3 } # = Array.new(3) { Array.new(3, nil) }
@@ -10,22 +10,22 @@ class Board
   def initialize(rows = self.class.blank_grid)
     @rows = rows
   end
-  
-  # 
+
+  #
   def dup
     duped_rows = rows.map(&:dup) #duped_rows = rows.map { |row| row.dup }
-    self.class.new(duped_rows) #returning a new, deep dup'd board 
+    self.class.new(duped_rows) #returning a new, deep dup'd board
   end
-  
+
   #checks if a position in empty; uses [] getter method
   def empty?(pos)
     self[pos].nil?
   end
-  
+
   #sets an @rows position using [] and mark; ex: board[1,2] = :x @rows[1][2]
   def []=(pos, mark) # pos = contents of brackets & mark = what follows eq sign
     raise "mark already placed there!" unless empty?(pos)
-    
+
     x, y = pos[0], pos[1]
     @rows[x][y] = mark
   end
@@ -35,29 +35,29 @@ class Board
     x, y = pos[0], pos[1]
     @rows[x][y]
   end
-  
+
   #returns array of arrays. each array holds marks for each column
   def cols
     cols = [[], [], []]
     @rows.each do |row| # row = conents of [0][0], [0][1], [0][2]
       row.each_with_index do |mark, col| #:x, 0 ; :o, 1, :x, 0
                             #ex: [[:x, :o, :x], [:x, nil, :o], [:x, nil, :x]]
-        cols[col] << mark   #cols[0] = the three marks in column 0 
+        cols[col] << mark   #cols[0] = the three marks in column 0
       end
     end
 
     cols
   end
-  
-  
-  # 
+
+
+  #
   def diagonals
     down_diag = [[0, 0], [1, 1], [2, 2]] #diagonal values of @rows
     up_diag = [[0, 2], [1, 1], [2, 0]]
-    
+
     #equivalent to: down_diag.map { |x, y| rows[x][y] }
     #ex: [[:x, :o, :x], [:x, nil, :o], [:x, nil, :x]]
-    
+
     [down_diag, up_diag].map do |diag|
       # Note the `x, y` inside the block; this unpacks, or
       # "destructures" the argument. Read more here:
@@ -65,7 +65,7 @@ class Board
       diag.map { |x, y| @rows[x][y] }
     end
   end
-  
+
   def over?
     # style guide says to use `or`, but I (and many others) prefer to
     # use `||` all the time. We don't like two ways to do something
@@ -89,15 +89,15 @@ class Board
     #     el.nil?           <= checks if each position in row is nil
     #   end                 <= if it's not nil, there's gotta be a mark
     # end
-    
-    
+
+
   end
 
-  def winner # summing arrays gives array of 8 rows, diags, columns in 
-            #[:x, :o, :x] 
+  def winner # summing arrays gives array of 8 rows, diags, columns in
+            #[:x, :o, :x]
     (rows + cols + diagonals).each do |triple|
       return :x if triple == [:x, :x, :x] #checks for consecutive :x & :o's
-      return :o if triple == [:o, :o, :o] 
+      return :o if triple == [:o, :o, :o]
     end
 
     nil #returns mark of winner; otherwise returns nil
@@ -113,7 +113,7 @@ class TicTacToe
   def initialize(player1, player2)
     @board = Board.new
     @players = { :x => player1, :o => player2 } #uses mark as key fo plyr obj
-    @turn = :x #x goes first 
+    @turn = :x #x goes first
   end
 
   def show #prints the board
@@ -126,7 +126,7 @@ class TicTacToe
       play_turn
     end
 
-    if self.board.won? 
+    if self.board.won?
       winning_player = self.players[self.board.winner]
       puts "#{winning_player.name} won the game!"
     else
@@ -140,10 +140,10 @@ class TicTacToe
     while true
       #sets current player based on turn (which is either :x or :o)
       current_player = self.players[self.turn]
-      
+
       #calls player move method, passing the game and the mark to the player)
       pos = current_player.move(self, self.turn)
-      
+
       #keeps the loop running until player places mark on an empty position
       break if place_mark(pos, self.turn)
     end
@@ -176,8 +176,8 @@ class HumanPlayer
       x, y = gets.chomp.split(",").map(&:to_i)  # ex: "1,2" => ["1", "2"] =>
                                                 # [1, 2]
       if HumanPlayer.valid_coord?(x, y)
-        #keeps looping until user inputs valid coords       
-        return [x, y]                   
+        #keeps looping until user inputs valid coords
+        return [x, y]
       else
         puts "Invalid coordinate!"
       end
@@ -187,7 +187,7 @@ class HumanPlayer
   private
   def self.valid_coord?(x, y)
     #ensures coords are between 0 & 2
-    [x, y].all? { |coord| (0..2).include?(coord) } 
+    [x, y].all? { |coord| (0..2).include?(coord) }
   end
 end
 
@@ -203,9 +203,9 @@ class ComputerPlayer
   end
 
   private
-  
+
   # checks all positions to see if there's a winning move
-  def winner_move(game, mark) 
+  def winner_move(game, mark)
     (0..2).each do |x|
       (0..2).each do |y|
         board = game.board.dup #using the board's deep dup method
@@ -213,10 +213,10 @@ class ComputerPlayer
 
         next unless board.empty?(pos) #makes sure current position is empty
         board[pos] = mark #sets the current position on the dup'd board
-        
+
         #returns the position if pos would make computer the winner
         # (remember, mark is set by the game object to track who is who)
-        return pos if board.winner == mark 
+        return pos if board.winner == mark
       end
     end
 
@@ -234,3 +234,9 @@ class ComputerPlayer
     end
   end
 end
+
+board = Board.new
+
+board[1, 1] = :x
+board[0, 1] = :x
+board[2, 2] = :x
